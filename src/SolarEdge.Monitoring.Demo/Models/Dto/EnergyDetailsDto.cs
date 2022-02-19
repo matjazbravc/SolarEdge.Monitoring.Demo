@@ -1,7 +1,6 @@
-﻿namespace SolarEdge.Monitoring.Demo.Models.Dto
+﻿namespace SolarEdge.Monitoring.Demo.Models.Dto;
+
+public class EnergyDetailsDto
 {
-	public class EnergyDetailsDto
-	{
-		public MeterList EnergyDetails { get; set; }
-	}
+  public MeterList EnergyDetails { get; set; }
 }

@@ -2,32 +2,24 @@
 using System.Threading.Tasks;
 using SolarEdge.Monitoring.Demo.Services;
 
-namespace SolarEdge.Monitoring.Demo.Database
+namespace SolarEdge.Monitoring.Demo.Database;
+
+public class DataInitializer(
+  DataContext context, 
+  IEnergyDetailsService energyDetailsService, 
+  IOverviewService overviewService)
+  : IDataInitializer
 {
-	public class DataInitializer : IDataInitializer
-	{
-		private readonly DataContext _context;
-		private readonly IEnergyDetailsService _energyDetailsService;
-		private readonly IOverviewService _overviewService;
+  public async Task InitializeAsync()
+  {
+    await context.Database.EnsureCreatedAsync();
 
-		public DataInitializer(DataContext context, IEnergyDetailsService energyDetailsService, IOverviewService overviewService)
-		{
-			_context = context;
-			_energyDetailsService = energyDetailsService;
-			_overviewService = overviewService;
-		}
+    if (context.EnergyDetails.Any() && context.Overview.Any())
+    {
+      return;
+    }
 
-		public async Task Initialize()
-		{
-			await _context.Database.EnsureCreatedAsync();
-
-			if (_context.EnergyDetails.Any() && _context.Overview.Any())
-			{
-				return;
-			}
-
-			await _overviewService.UpdateOverviewAsync();
-			await _energyDetailsService.UpdateEnergyDetailsThisWeekAsync();
-		}
-	}
+    await overviewService.UpdateOverviewAsync();
+    await energyDetailsService.UpdateEnergyDetailsThisWeekAsync();
+  }
 }

@@ -9,72 +9,65 @@ using Newtonsoft.Json.Converters;
 using SolarEdge.Monitoring.Demo.Models.Dto;
 using SolarEdge.Monitoring.Demo.Services.Configuration;
 
-namespace SolarEdge.Monitoring.Demo.Services.HttpClients
+namespace SolarEdge.Monitoring.Demo.Services.HttpClients;
+
+public class SolarEdgeHttpClient(
+  IOptions<ServiceConfig> config,
+  IHttpClientFactory clientFactory)
+  : ISolarEdgeHttpClient
 {
-	public class SolarEdgeHttpClient : ISolarEdgeHttpClient
-	{
-		private readonly Uri _baseUri;
-		private readonly ServiceConfig _config;
-		private readonly IHttpClientFactory _clientFactory;
+  private readonly Uri _baseUri = new("https://monitoringapi.solaredge.com/");
+  private readonly ServiceConfig _config = config.Value;
 
-		public SolarEdgeHttpClient(IOptions<ServiceConfig> config, IHttpClientFactory clientFactory)
-		{
-			_baseUri = new Uri("https://monitoringapi.solaredge.com/");
-			_config = config.Value;
-			_clientFactory = clientFactory;
-		}
+  public async Task<EnergyDetailsDto> GetEnergyDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken = default)
+  {
+    return await SendGetRequest<EnergyDetailsDto>($"site/{siteId}/energyDetails.json?timeUnit=DAY&startTime={ConvertToString(start)}&endTime={ConvertToString(end)}", cancellationToken).ConfigureAwait(false);
+  }
 
-		public async Task<EnergyDetailsDto> GetEnergyDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken)
-		{
-			return await SendGetRequest<EnergyDetailsDto>($"site/{siteId}/energyDetails.json?timeUnit=DAY&startTime={ConvertToString(start)}&endTime={ConvertToString(end)}", cancellationToken).ConfigureAwait(false);
-		}
+  public async Task<OverviewDto> GetOverviewInfoAsync(string siteId, CancellationToken cancellationToken = default)
+  {
+    return await SendGetRequest<OverviewDto>($"site/{siteId}/overview?", cancellationToken).ConfigureAwait(false);
+  }
 
-		public async Task<OverviewDto> GetOverviewInfoAsync(string siteId, CancellationToken cancellationToken)
-		{
-			return await SendGetRequest<OverviewDto>($"site/{siteId}/overview?", cancellationToken).ConfigureAwait(false);
-		}
+  public async Task<PowerDetailsDto> GetPowerDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken = default)
+  {
+    return await SendGetRequest<PowerDetailsDto>($"site/{siteId}/powerDetails.json?timeUnit=QUARTER_OF_AN_HOUR&startTime={ConvertToString(start)}&endTime={ConvertToString(end)}", cancellationToken).ConfigureAwait(false);
+  }
 
-		public async Task<PowerDetailsDto> GetPowerDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken)
-		{
-			return await SendGetRequest<PowerDetailsDto>($"site/{siteId}/powerDetails.json?timeUnit=QUARTER_OF_AN_HOUR&startTime={ConvertToString(start)}&endTime={ConvertToString(end)}", cancellationToken).ConfigureAwait(false);
-		}
+  private static TData Convert<TData>(string content)
+  {
+    var jsonSettings = new JsonSerializerSettings
+    {
+      MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+      DateParseHandling = DateParseHandling.None,
+    };
 
-		private static TData Convert<TData>(string content)
-		{
-			var jsonSettings = new JsonSerializerSettings
-			{
-				MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-				DateParseHandling = DateParseHandling.None,
-			};
+    var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
+    jsonSettings.Converters.Add(dateTimeConverter);
 
-			var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
-			jsonSettings.Converters.Add(dateTimeConverter);
+    return JsonConvert.DeserializeObject<TData>(content, jsonSettings);
+  }
 
-			return JsonConvert.DeserializeObject<TData>(content, jsonSettings);
-		}
+  private static string ConvertToString(DateTime time) => time.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
-		private static string ConvertToString(DateTime time)
-					=> time.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-
-		private async Task<TData> SendGetRequest<TData>(string relativePath, CancellationToken cancellationToken)
-		{
-			var httpClient = _clientFactory.CreateClient("PollyHttpClient");
-			var uri = new UriBuilder(new Uri(_baseUri, relativePath));
-			var apiKey = $"&api_key={_config.SolarEdgeApiKey}";
-			if (string.IsNullOrEmpty(uri.Query))
-			{
-				uri.Query = apiKey;
-			}
-			else
-			{
-				uri.Query += apiKey;
-			}
-			var apiResult = await httpClient.GetAsync(uri.Uri, cancellationToken).ConfigureAwait(false);
-			var strContent = await apiResult.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-			var result = cancellationToken.IsCancellationRequested ?
-				default :
-				Convert<TData>(strContent);
-			return result;
-		}
-	}
+  private async Task<TData> SendGetRequest<TData>(string relativePath, CancellationToken cancellationToken = default)
+  {
+    var httpClient = clientFactory.CreateClient("PollyHttpClient");
+    var uri = new UriBuilder(new Uri(_baseUri, relativePath));
+    var apiKey = $"&api_key={_config.SolarEdgeApiKey}";
+    if (string.IsNullOrEmpty(uri.Query))
+    {
+      uri.Query = apiKey;
+    }
+    else
+    {
+      uri.Query += apiKey;
+    }
+    var apiResult = await httpClient.GetAsync(uri.Uri, cancellationToken).ConfigureAwait(false);
+    var strContent = await apiResult.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+    var result = cancellationToken.IsCancellationRequested ?
+      default :
+      Convert<TData>(strContent);
+    return result;
+  }
 }

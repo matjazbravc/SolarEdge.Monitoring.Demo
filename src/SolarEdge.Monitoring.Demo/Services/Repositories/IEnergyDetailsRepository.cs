@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 
-namespace SolarEdge.Monitoring.Demo.Services.Repositories
+namespace SolarEdge.Monitoring.Demo.Services.Repositories;
+
+public interface IEnergyDetailsRepository : IBaseRepository<EnergyDetails>
 {
-	public interface IEnergyDetailsRepository : IBaseRepository<EnergyDetails>
-	{
-		Task<EnergyDetails> GetAsync(DateTime date, CancellationToken cancellationToken = default);
-	}
+  Task<EnergyDetails> GetAsync(DateTime date, CancellationToken cancellationToken = default);
 }

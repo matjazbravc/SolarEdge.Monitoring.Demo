@@ -3,14 +3,13 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 
-namespace SolarEdge.Monitoring.Demo.Services
+namespace SolarEdge.Monitoring.Demo.Services;
+
+public interface ISolarEdgeHttpClient
 {
-	public interface ISolarEdgeHttpClient
-	{
-		Task<OverviewDto> GetOverviewInfoAsync(string siteId, CancellationToken cancellationToken);
+  Task<OverviewDto> GetOverviewInfoAsync(string siteId, CancellationToken cancellationToken = default);
 
-		Task<EnergyDetailsDto> GetEnergyDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken);
+  Task<EnergyDetailsDto> GetEnergyDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken = default);
 
-		Task<PowerDetailsDto> GetPowerDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken);
-	}
+  Task<PowerDetailsDto> GetPowerDetailsAsync(string siteId, DateTime start, DateTime end, CancellationToken cancellationToken = default);
 }

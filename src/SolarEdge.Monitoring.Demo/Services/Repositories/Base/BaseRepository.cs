@@ -6,19 +6,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using SolarEdge.Monitoring.Demo.Database;
 
-namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
-{
+namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base;
+
 	/// <summary>
 	/// Generic entity repository
 	/// </summary>
 	/// <typeparam name="TEntity"></typeparam>
 	public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
 	{
-		protected readonly DbContext DatabaseContext;
+		protected readonly DataContext DatabaseContext;
 		protected readonly DbSet<TEntity> DatabaseSet;
 
-		protected BaseRepository(DbContext context)
+		protected BaseRepository(DataContext context)
 		{
 			DatabaseContext = context ?? throw new ArgumentException(nameof(context));
 			DatabaseSet = DatabaseContext.Set<TEntity>();
@@ -55,8 +56,8 @@ namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 		/// <param name="disableTracking"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public virtual async Task<int> CountAsync(CancellationToken cancellationToken = default, bool disableTracking = true)
-		{
+		public virtual async Task<int> CountAsync(bool disableTracking = true, CancellationToken cancellationToken = default)
+  {
 			IQueryable<TEntity> query = DatabaseSet;
 			if (disableTracking)
 			{
@@ -87,8 +88,8 @@ namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 		/// usage:
 		/// var ownerId = 1;
 		/// var owner = await FindByConditionAsync(o => o.Id.Equals(ownerId));
-		public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default, bool disableTracking = true)
-		{
+		public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, bool disableTracking = true, CancellationToken cancellationToken = default)
+  {
 			IQueryable<TEntity> query = DatabaseSet;
 			if (disableTracking)
 			{
@@ -103,8 +104,8 @@ namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 		/// <param name="disableTracking"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public virtual async Task<IList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default, bool disableTracking = true)
-		{
+		public virtual async Task<IList<TEntity>> GetAllAsync(bool disableTracking = true, CancellationToken cancellationToken = default)
+  {
 			IQueryable<TEntity> query = DatabaseSet;
 			if (disableTracking)
 			{
@@ -120,8 +121,8 @@ namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 		/// <param name="disableTracking"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public virtual async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default, bool disableTracking = true)
-		{
+		public virtual async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, bool disableTracking = true, CancellationToken cancellationToken = default)
+  {
 			IQueryable<TEntity> query = DatabaseSet;
 			if (disableTracking)
 			{
@@ -138,8 +139,8 @@ namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 		/// <param name="disableTracking"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public virtual async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default, bool disableTracking = true)
-		{
+		public virtual async Task<TEntity> UpdateAsync(TEntity entity, bool disableTracking = true, CancellationToken cancellationToken = default)
+  {
 			var properties = entity.GetType().GetProperties();
 			var keyProperty = (from property in properties
 							   let keyAttr = property.GetCustomAttributes(typeof(KeyAttribute), false).Cast<KeyAttribute>().FirstOrDefault()
@@ -155,4 +156,3 @@ namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 			return existing;
 		}
 	}
-}

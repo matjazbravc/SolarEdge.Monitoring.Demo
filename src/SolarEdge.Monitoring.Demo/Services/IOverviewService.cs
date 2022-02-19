@@ -2,12 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SolarEdge.Monitoring.Demo.Services
-{
-	public interface IOverviewService
-	{
-		Task UpdateOverviewAsync(CancellationToken cancellationToken = default);
+namespace SolarEdge.Monitoring.Demo.Services;
 
-		Task<Overview> GetOverviewAsync(CancellationToken cancellationToken = default);
-	}
+public interface IOverviewService
+{
+  Task UpdateOverviewAsync(CancellationToken cancellationToken = default);
+
+  Task<Overview> GetOverviewAsync(CancellationToken cancellationToken = default);
 }

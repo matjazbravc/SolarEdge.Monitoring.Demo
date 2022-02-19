@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   solaredge.monitoring.demo:
     container_name: solaredge_openapi

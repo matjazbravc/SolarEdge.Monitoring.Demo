@@ -3,8 +3,8 @@ using Polly.Extensions.Http;
 using System;
 using System.Net.Http;
 
-namespace SolarEdge.Monitoring.Demo.Services.Polly
-{
+namespace SolarEdge.Monitoring.Demo.Services.Polly;
+
 	public static class RetryPolicies
 	{
 		public static IAsyncPolicy<HttpResponseMessage> GetHttpClientRetryPolicy()
@@ -21,4 +21,3 @@ namespace SolarEdge.Monitoring.Demo.Services.Polly
 			  .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 		}
 	}
-}

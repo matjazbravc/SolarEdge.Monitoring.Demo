@@ -112,7 +112,7 @@ services:
       - 3306:3306
 ```
 # Setup the Containers
-To execute compose file, open Powershell, and navigate to the compose file in the root folder. Then execute the following command: **docker-compose up -d --build**. To check all running Containers use **docker ps**.
+To execute compose file, open Powershell, and navigate to the compose file in the root folder. Then execute the following command: **docker-compose up -d --build --remove-orphans**. To check all running Containers use **docker ps**.
 
 ![](res/docker.png)
 
@@ -130,14 +130,14 @@ You can also change the time range and the graphs will be updated accordingly.
 
 Enjoy!
 
-- [Visual Studio](https://www.visualstudio.com/vs/community) 2019 16.9.4 or greater
-- [.NET SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
+## Prerequisites
+- [Visual Studio](https://www.visualstudio.com/vs/community) 2022 17.2.6 or greater
+- [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker](https://www.docker.com/resources/what-container)
 
 ## Tags & Technologies
-- [.NET 5.0](https://github.com/dotnet/core/blob/main/release-notes/5.0/5.0.5/5.0.5.md)
+- [.NET 8](https://github.com/dotnet/core/blob/main/release-notes/8.0)
 - [Docker](https://www.docker.com/resources/what-container)  
-- [ASP.NET Core 5.0](https://docs.microsoft.com/en-us/aspnet/core/release-notes/aspnetcore-5.0?view=aspnetcore-5.0)
 - [SolarEdge Monitoring Server API](https://www.solaredge.com/sites/default/files//se_monitoring_api.pdf)
 - [MySQL](https://www.mysql.com/)
 - [Grafana](https://grafana.com/)

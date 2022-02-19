@@ -1,5 +1,5 @@
-﻿namespace SolarEdge.Monitoring.Demo.Services.Configuration
-{
+﻿namespace SolarEdge.Monitoring.Demo.Services.Configuration;
+
 	public class ServiceConfig
 	{
 		public string SolarEdgeSiteId { get; set; }
@@ -12,4 +12,3 @@
 		
 		public string EnergyDetailsJobCronSchedule { get; set; }
 	}
-}

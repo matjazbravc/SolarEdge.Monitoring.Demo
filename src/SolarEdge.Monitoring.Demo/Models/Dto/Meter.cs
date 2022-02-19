@@ -1,9 +1,8 @@
-﻿namespace SolarEdge.Monitoring.Demo.Models.Dto
-{
-	public class Meter
-	{
-		public string Type { get; set; }
+﻿namespace SolarEdge.Monitoring.Demo.Models.Dto;
 
-		public MeterValue[] Values { get; set; }
-	}
+public class Meter
+{
+  public string Type { get; set; }
+
+  public MeterValue[] Values { get; set; }
 }

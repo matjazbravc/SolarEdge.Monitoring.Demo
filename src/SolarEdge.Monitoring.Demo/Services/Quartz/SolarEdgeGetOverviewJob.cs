@@ -1,8 +1,8 @@
 ﻿using Quartz;
 using System.Threading.Tasks;
 
-namespace SolarEdge.Monitoring.Demo.Services.Quartz
-{
+namespace SolarEdge.Monitoring.Demo.Services.Quartz;
+
 	[DisallowConcurrentExecution]
 	public class SolarEdgeGetOverviewJob : IJob
 	{
@@ -18,4 +18,3 @@ namespace SolarEdge.Monitoring.Demo.Services.Quartz
 			await _overviewService.UpdateOverviewAsync(context.CancellationToken).ConfigureAwait(false);
 		}
 	}
-}

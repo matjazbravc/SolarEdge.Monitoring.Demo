@@ -1,5 +1,5 @@
-﻿namespace SolarEdge.Monitoring.Demo.Services.Configuration
-{
+﻿namespace SolarEdge.Monitoring.Demo.Services.Configuration;
+
 	public class SwaggerConfig
 	{
 		public string Title { get; set; }
@@ -20,4 +20,3 @@
 
 		public string RoutePrefix { get; set; }
 	}
-}

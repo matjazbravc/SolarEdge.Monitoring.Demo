@@ -1,11 +1,10 @@
-﻿namespace SolarEdge.Monitoring.Demo.Models.Dto
+﻿namespace SolarEdge.Monitoring.Demo.Models.Dto;
+
+public class MeterList
 {
-	public class MeterList
-	{
-		public string TimeUnit { get; set; }
+  public string TimeUnit { get; set; }
 
-		public string Unit { get; set; }
+  public string Unit { get; set; }
 
-		public Meter[] Meters { get; set; }
-	}
+  public Meter[] Meters { get; set; }
 }
