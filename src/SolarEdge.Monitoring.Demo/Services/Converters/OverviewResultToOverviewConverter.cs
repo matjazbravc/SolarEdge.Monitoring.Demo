@@ -20,7 +20,7 @@ namespace SolarEdge.Monitoring.Demo.Services.Converters
 		{
 			_logger.LogDebug(nameof(Convert));
 
-			var result = new Overview()
+			var result = new Overview
 			{
 				CurrentPower = overviewDto.Overview.CurrentPower.Power,
 				LastDayData = overviewDto.Overview.LastDayData.Energy,

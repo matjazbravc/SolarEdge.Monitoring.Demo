@@ -28,7 +28,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Get EnergyDetails for this month
 		/// </summary>
 		/// <response code="200">Returns EnergyDetail month report</response>
-		[HttpGet("GetEnergyDetailsThisMonth")]
+		[HttpGet(nameof(GetEnergyDetailsThisMonthAsync))]
 		public async Task<IActionResult> GetEnergyDetailsThisMonthAsync()
 		{
 			_logger.LogDebug(nameof(GetEnergyDetailsThisMonthAsync));
@@ -40,7 +40,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Get EnergyDetails for this week
 		/// </summary>
 		/// <response code="200">Returns EnergyDetail week report</response>
-		[HttpGet("GetEnergyDetailsThisWeek")]
+		[HttpGet(nameof(GetEnergyDetailsThisWeekAsync))]
 		public async Task<IActionResult> GetEnergyDetailsThisWeekAsync()
 		{
 			_logger.LogDebug(nameof(GetEnergyDetailsThisWeekAsync));
@@ -52,7 +52,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Get EnergyDetails for this year
 		/// </summary>
 		/// <response code="200">Returns EnergyDetail year report</response>
-		[HttpGet("GetEnergyDetailsThisYear")]
+		[HttpGet(nameof(GetEnergyDetailsThisYearAsync))]
 		public async Task<IActionResult> GetEnergyDetailsThisYearAsync()
 		{
 			_logger.LogDebug(nameof(GetEnergyDetailsThisYearAsync));
@@ -64,7 +64,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Get EnergyDetails for today
 		/// </summary>
 		/// <response code="200">Returns EnergyDetail today report</response>
-		[HttpGet("GetEnergyDetailsToday")]
+		[HttpGet(nameof(GetEnergyDetailsTodayAsync))]
 		public async Task<IActionResult> GetEnergyDetailsTodayAsync()
 		{
 			_logger.LogDebug(nameof(GetEnergyDetailsTodayAsync));
@@ -76,7 +76,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Update EnergyDetails for date range
 		/// </summary>
 		/// <response code="200">Returns OK result</response>
-		[HttpPut("UpdateEnergyDetailsAsync")]
+		[HttpPut(nameof(UpdateEnergyDetailsAsync))]
 		public async Task<IActionResult> UpdateEnergyDetailsAsync(DateTime dateStart, DateTime dateEnd)
 		{
 			_logger.LogDebug(nameof(UpdateEnergyDetailsAsync));
@@ -92,7 +92,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Update EnergyDetails for this month
 		/// </summary>
 		/// <response code="200">Returns OK result</response>
-		[HttpPut("UpdateEnergyDetailsThisMonthAsync")]
+		[HttpPut(nameof(UpdateEnergyDetailsThisMonthAsync))]
 		public async Task<IActionResult> UpdateEnergyDetailsThisMonthAsync()
 		{
 			_logger.LogDebug(nameof(UpdateEnergyDetailsThisMonthAsync));
@@ -104,7 +104,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Update EnergyDetails for this week
 		/// </summary>
 		/// <response code="200">Returns OK result</response>
-		[HttpPut("UpdateEnergyDetailsThisWeekAsync")]
+		[HttpPut(nameof(UpdateEnergyDetailsThisWeekAsync))]
 		public async Task<IActionResult> UpdateEnergyDetailsThisWeekAsync()
 		{
 			_logger.LogDebug(nameof(UpdateEnergyDetailsThisWeekAsync));
@@ -116,7 +116,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Update EnergyDetails for this year
 		/// </summary>
 		/// <response code="200">Returns OK result</response>
-		[HttpPut("UpdateEnergyDetailsThisYearAsync")]
+		[HttpPut(nameof(UpdateEnergyDetailsThisYearAsync))]
 		public async Task<IActionResult> UpdateEnergyDetailsThisYearAsync()
 		{
 			_logger.LogDebug(nameof(UpdateEnergyDetailsThisYearAsync));
@@ -128,7 +128,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Update EnergyDetails for today
 		/// </summary>
 		/// <response code="200">Returns OK result</response>
-		[HttpPut("UpdateEnergyDetailsTodayAsync")]
+		[HttpPut(nameof(UpdateEnergyDetailsTodayAsync))]
 		public async Task<IActionResult> UpdateEnergyDetailsTodayAsync()
 		{
 			_logger.LogDebug(nameof(UpdateEnergyDetailsTodayAsync));

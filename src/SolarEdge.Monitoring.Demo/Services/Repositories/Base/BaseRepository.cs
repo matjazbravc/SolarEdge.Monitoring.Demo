@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using SolarEdge.Monitoring.Demo.Database;
 
 namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 {
@@ -15,10 +16,10 @@ namespace SolarEdge.Monitoring.Demo.Services.Repositories.Base
 	/// <typeparam name="TEntity"></typeparam>
 	public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
 	{
-		protected readonly DbContext DatabaseContext;
+		protected readonly DataContext DatabaseContext;
 		protected readonly DbSet<TEntity> DatabaseSet;
 
-		protected BaseRepository(DbContext context)
+		protected BaseRepository(DataContext context)
 		{
 			DatabaseContext = context ?? throw new ArgumentException(nameof(context));
 			DatabaseSet = DatabaseContext.Set<TEntity>();

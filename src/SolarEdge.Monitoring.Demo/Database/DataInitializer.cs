@@ -17,7 +17,7 @@ namespace SolarEdge.Monitoring.Demo.Database
 			_overviewService = overviewService;
 		}
 
-		public async Task Initialize()
+		public async Task InitializeAsync()
 		{
 			await _context.Database.EnsureCreatedAsync();
 

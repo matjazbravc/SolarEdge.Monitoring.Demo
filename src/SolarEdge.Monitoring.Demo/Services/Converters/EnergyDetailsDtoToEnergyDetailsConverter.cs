@@ -27,7 +27,7 @@ namespace SolarEdge.Monitoring.Demo.Services.Converters
 			double selfConsumption = 0;
 			double production = 0;
 			double feedIn = 0;
-			DateTime time = DateTime.Today;
+			var time = DateTime.Today;
 
 			var firstMeter = energyDetailsDto.EnergyDetails.Meters.FirstOrDefault();
 			var date = firstMeter?.Values.FirstOrDefault();
