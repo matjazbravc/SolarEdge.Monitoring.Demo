@@ -34,6 +34,7 @@ namespace SolarEdge.Monitoring.Demo
 		{
 			services.AddOptions();
 
+			// Register Swagger & Service configurations
 			RegisterConfigurations(services);
 
 			services.AddSingleton(Configuration);
@@ -43,12 +44,12 @@ namespace SolarEdge.Monitoring.Demo
 			var mySqlConnString = Environment.GetEnvironmentVariable("ServiceConfig__MySqlConnectionString");
 			if (string.IsNullOrEmpty(mySqlConnString))
 			{
+				// Read MySQL connection string from appsettings.json "ServiceConfig" section
 				var config = Configuration.GetSection("ServiceConfig").Get<ServiceConfig>();
 				mySqlConnString = config.MySqlConnectionString;
 			}
 
-			services.AddHealthChecks()
-				.AddMySql(mySqlConnString, "MySql", HealthStatus.Unhealthy);
+			services.AddHealthChecks().AddMySql(mySqlConnString, "MySql", HealthStatus.Unhealthy);
 
 			// Register converters
 			services.AddTransient<IConverter<OverviewDto, Overview>, OverviewResultToOverviewConverter>();
@@ -145,8 +146,8 @@ namespace SolarEdge.Monitoring.Demo
 			app.UseEndpoints(configure =>
 			{
 				configure.MapControllers();
-				configure.MapHealthChecks("health");
 				configure.MapDefaultControllerRoute();
+				configure.MapHealthChecks("health");
 				// Redirect root to Swagger UI
 				configure.MapGet("", context =>
 				{
