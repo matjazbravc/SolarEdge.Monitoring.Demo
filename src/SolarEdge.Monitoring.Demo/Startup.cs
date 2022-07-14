@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -8,15 +7,15 @@ using Microsoft.Extensions.Hosting;
 using Quartz;
 using SolarEdge.Monitoring.Demo.Database;
 using SolarEdge.Monitoring.Demo.Extensions;
-using SolarEdge.Monitoring.Demo.Models.Dto;
 using SolarEdge.Monitoring.Demo.Models;
+using SolarEdge.Monitoring.Demo.Models.Dto;
+using SolarEdge.Monitoring.Demo.Services;
 using SolarEdge.Monitoring.Demo.Services.Configuration;
 using SolarEdge.Monitoring.Demo.Services.Converters;
 using SolarEdge.Monitoring.Demo.Services.HttpClients;
 using SolarEdge.Monitoring.Demo.Services.Polly;
 using SolarEdge.Monitoring.Demo.Services.Quartz;
 using SolarEdge.Monitoring.Demo.Services.Repositories;
-using SolarEdge.Monitoring.Demo.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -63,6 +62,7 @@ namespace SolarEdge.Monitoring.Demo
 			services.AddTransient<IOverviewService, OverviewService>();
 			services.AddTransient<ISolarEdgeHttpClient, SolarEdgeHttpClient>();
 
+			// Configure Quartz jobs
 			services.AddQuartz(config =>
 			{
 				config.UseMicrosoftDependencyInjectionJobFactory();
@@ -145,13 +145,14 @@ namespace SolarEdge.Monitoring.Demo
 			app.UseEndpoints(configure =>
 			{
 				configure.MapControllers();
+				configure.MapHealthChecks("health");
+				configure.MapDefaultControllerRoute();
+				// Redirect root to Swagger UI
 				configure.MapGet("", context =>
 				{
 					context.Response.Redirect("./swagger/index.html", permanent: false);
 					return Task.FromResult(0);
 				});
-				configure.MapHealthChecks("health");
-				configure.MapDefaultControllerRoute();
 			});
 
 			dataInitializer.InitializeAsync().Wait();
