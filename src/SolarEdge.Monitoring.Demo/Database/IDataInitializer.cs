@@ -4,6 +4,6 @@ namespace SolarEdge.Monitoring.Demo.Database
 {
 	public interface IDataInitializer
 	{
-		Task Initialize();
+		Task InitializeAsync();
 	}
 }

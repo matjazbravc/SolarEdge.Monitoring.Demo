@@ -152,7 +152,7 @@ namespace SolarEdge.Monitoring.Demo
 				configure.MapDefaultControllerRoute();
 			});
 
-			dataInitializer.Initialize().Wait();
+			dataInitializer.InitializeAsync().Wait();
 		}
 
 		/// <summary>

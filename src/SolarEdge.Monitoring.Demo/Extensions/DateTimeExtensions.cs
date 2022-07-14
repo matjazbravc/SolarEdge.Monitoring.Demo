@@ -42,16 +42,6 @@ namespace SolarEdge.Monitoring.Demo.Extensions
 			return new DateTime(self.Year, 1, 1);
 		}
 
-		public static string ToSqlDate(this DateTime self)
-		{
-			return self.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-		}
-
-		public static string ToSqlDateShort(this DateTime self)
-		{
-			return self.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
-		}
-
 		public static string ToSqlDateTime(this DateTime self)
 		{
 			return self.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);

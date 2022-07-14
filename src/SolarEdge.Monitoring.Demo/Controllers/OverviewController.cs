@@ -26,7 +26,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Get Overview information
 		/// </summary>
 		/// <response code="200">Returns Overview information</response>
-		[HttpGet("GetOverview")]
+		[HttpGet(nameof(GetOverviewAsync))]
 		public async Task<IActionResult> GetOverviewAsync()
 		{
 			var overview = await _overviewService.GetOverviewAsync().ConfigureAwait(false);
@@ -37,7 +37,7 @@ namespace SolarEdge.Monitoring.Demo.Controllers
 		/// Update Overview information
 		/// </summary>
 		/// <response code="200">Returns OK result</response>
-		[HttpPut("UpdateOverviewAsync")]
+		[HttpPut(nameof(UpdateOverviewAsync))]
 		public async Task<IActionResult> UpdateOverviewAsync()
 		{
 			_logger.LogDebug(nameof(UpdateOverviewAsync));
