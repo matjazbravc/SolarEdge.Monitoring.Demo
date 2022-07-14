@@ -18,6 +18,7 @@ using SolarEdge.Monitoring.Demo.Services.Quartz;
 using SolarEdge.Monitoring.Demo.Services.Repositories;
 using SolarEdge.Monitoring.Demo.Services;
 using System;
+using System.Threading.Tasks;
 
 namespace SolarEdge.Monitoring.Demo
 {
@@ -144,9 +145,10 @@ namespace SolarEdge.Monitoring.Demo
 			app.UseEndpoints(configure =>
 			{
 				configure.MapControllers();
-				configure.MapGet("/", async context =>
+				configure.MapGet("", context =>
 				{
-					await context.Response.WriteAsync("SolarEdge.Monitoring.OpenApi");
+					context.Response.Redirect("./swagger/index.html", permanent: false);
+					return Task.FromResult(0);
 				});
 				configure.MapHealthChecks("health");
 				configure.MapDefaultControllerRoute();
