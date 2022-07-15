@@ -129,6 +129,8 @@ You can also change the time range and the graphs will be updated accordingly.
 ![](res/grafana-time-range.png)
 
 Enjoy!
+
+## Prerequisites
 - [Visual Studio](https://www.visualstudio.com/vs/community) 2022 17.2.6 or greater
 - [.NET SDK 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
 - [Docker](https://www.docker.com/resources/what-container)
