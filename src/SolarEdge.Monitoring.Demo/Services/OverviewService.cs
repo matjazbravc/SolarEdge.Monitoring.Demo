@@ -10,53 +10,42 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 
-namespace SolarEdge.Monitoring.Demo.Services
-{
-	public class OverviewService : IOverviewService
+namespace SolarEdge.Monitoring.Demo.Services;
+
+	public class OverviewService(
+		ILogger<OverviewService> logger,
+  IOptions<ServiceConfig> config,
+		ISolarEdgeHttpClient solarEdgeHttpClient,
+  IOverviewRepository overviewRepository,
+		IConverter<OverviewDto, Overview> overviewConverter)
+		: IOverviewService
 	{
-		private readonly ServiceConfig _config;
-		private readonly ILogger<OverviewService> _logger;
-		private readonly ISolarEdgeHttpClient _solarEdgeHttpClient;
-		private readonly IOverviewRepository _overviewRepository;
-		private readonly IConverter<OverviewDto, Overview> _overviewConverter;
+		private readonly ServiceConfig _config = config.Value;
 
-		public OverviewService(ILogger<OverviewService> logger,
-			IOptions<ServiceConfig> config, ISolarEdgeHttpClient solarEdgeHttpClient,
-			IOverviewRepository overviewRepository,
-			IConverter<OverviewDto, Overview> overviewConverter)
+  public async Task UpdateOverviewAsync(CancellationToken cancellationToken = default)
 		{
-			_logger = logger;
-			_config = config.Value;
-			_solarEdgeHttpClient = solarEdgeHttpClient;
-			_overviewRepository = overviewRepository;
-			_overviewConverter = overviewConverter;
-		}
+			logger.LogInformation($"Start reading Overview details at {DateTime.UtcNow.ToSqlDateTime()}");
 
-		public async Task UpdateOverviewAsync(CancellationToken cancellationToken = default)
-		{
-			_logger.LogInformation($"Start reading Overview details at {DateTime.UtcNow.ToSqlDateTime()}");
-
-			var overviewResult = await _solarEdgeHttpClient.GetOverviewInfoAsync(_config.SolarEdgeSiteId, cancellationToken).ConfigureAwait(false);
-			var overview = _overviewConverter.Convert(overviewResult);
+			var overviewResult = await solarEdgeHttpClient.GetOverviewInfoAsync(_config.SolarEdgeSiteId, cancellationToken).ConfigureAwait(false);
+			var overview = overviewConverter.Convert(overviewResult);
 
 			// Add/update Overview table
-			var existingOverview = await _overviewRepository.GetFirstAsync(cancellationToken).ConfigureAwait(false);
+			var existingOverview = await overviewRepository.GetFirstAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 			if (existingOverview == null)
 			{
-				await _overviewRepository.AddAsync(overview, cancellationToken).ConfigureAwait(false);
+				await overviewRepository.AddAsync(overview, cancellationToken).ConfigureAwait(false);
 			}
 			else
 			{
 				overview.Id = existingOverview.Id;
-				await _overviewRepository.UpdateAsync(overview, cancellationToken).ConfigureAwait(false);
+				await overviewRepository.UpdateAsync(overview, cancellationToken: cancellationToken).ConfigureAwait(false);
 			}
-			_logger.LogInformation($"End reading Overview details at {DateTime.UtcNow.ToSqlDateTime()}");
+			logger.LogInformation($"End reading Overview details at {DateTime.UtcNow.ToSqlDateTime()}");
 		}
 
 		public async Task<Overview> GetOverviewAsync(CancellationToken cancellationToken = default)
 		{
-			var overview = await _overviewRepository.GetFirstAsync(cancellationToken).ConfigureAwait(false);
+			var overview = await overviewRepository.GetFirstAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 			return overview;
 		}
 	}
-}

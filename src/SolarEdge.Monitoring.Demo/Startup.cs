@@ -1,3 +1,4 @@
+using HealthChecks.MySql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,154 +20,147 @@ using SolarEdge.Monitoring.Demo.Services.Repositories;
 using System;
 using System.Threading.Tasks;
 
-namespace SolarEdge.Monitoring.Demo
+namespace SolarEdge.Monitoring.Demo;
+
+public class Startup(IConfiguration configuration)
 {
-	public class Startup
-	{
-		public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+  public IConfiguration Configuration { get; } = configuration;
 
-		public IConfiguration Configuration { get; }
+  public void ConfigureServices(IServiceCollection services)
+  {
+    services.AddOptions();
 
-		public void ConfigureServices(IServiceCollection services)
-		{
-			services.AddOptions();
+    // Register Swagger & Service configurations
+    RegisterConfigurations(services);
 
-			// Register Swagger & Service configurations
-			RegisterConfigurations(services);
+    services.AddSingleton(Configuration);
 
-			services.AddSingleton(Configuration);
+    services.AddHttpClient("PollyHttpClient").AddPolicyHandler(RetryPolicies.GetHttpClientRetryPolicy());
 
-			services.AddHttpClient("PollyHttpClient").AddPolicyHandler(RetryPolicies.GetHttpClientRetryPolicy());
+    var mySqlConnString = Environment.GetEnvironmentVariable("ServiceConfig__MySqlConnectionString");
+    if (string.IsNullOrEmpty(mySqlConnString))
+    {
+      // Read MySQL connection string from appsettings.json "ServiceConfig" section
+      var config = Configuration.GetSection("ServiceConfig").Get<ServiceConfig>();
+      mySqlConnString = config.MySqlConnectionString;
+    }
 
-			var mySqlConnString = Environment.GetEnvironmentVariable("ServiceConfig__MySqlConnectionString");
-			if (string.IsNullOrEmpty(mySqlConnString))
-			{
-				// Read MySQL connection string from appsettings.json "ServiceConfig" section
-				var config = Configuration.GetSection("ServiceConfig").Get<ServiceConfig>();
-				mySqlConnString = config.MySqlConnectionString;
-			}
+    var options = new MySqlHealthCheckOptions(mySqlConnString);
+    services.AddHealthChecks().AddMySql(options, "MySql", HealthStatus.Unhealthy);
 
-			services.AddHealthChecks().AddMySql(mySqlConnString, "MySql", HealthStatus.Unhealthy);
+    // Register converters
+    services.AddTransient<IConverter<OverviewDto, Overview>, OverviewResultToOverviewConverter>();
+    services.AddTransient<IConverter<EnergyDetailsDto, EnergyDetails>, EnergyDetailsDtoToEnergyDetailsConverter>();
 
-			// Register converters
-			services.AddTransient<IConverter<OverviewDto, Overview>, OverviewResultToOverviewConverter>();
-			services.AddTransient<IConverter<EnergyDetailsDto, EnergyDetails>, EnergyDetailsDtoToEnergyDetailsConverter>();
+    // Register services
+    services.AddTransient<IDataInitializer, DataInitializer>();
+    services.AddTransient<IEnergyDetailsRepository, EnergyDetailsRepository>();
+    services.AddTransient<IEnergyDetailsService, EnergyDetailsService>();
+    services.AddTransient<IOverviewRepository, OverviewRepository>();
+    services.AddTransient<IOverviewService, OverviewService>();
+    services.AddTransient<ISolarEdgeHttpClient, SolarEdgeHttpClient>();
 
-			// Register services
-			services.AddTransient<IDataInitializer, DataInitializer>();
-			services.AddTransient<IEnergyDetailsRepository, EnergyDetailsRepository>();
-			services.AddTransient<IEnergyDetailsService, EnergyDetailsService>();
-			services.AddTransient<IOverviewRepository, OverviewRepository>();
-			services.AddTransient<IOverviewService, OverviewService>();
-			services.AddTransient<ISolarEdgeHttpClient, SolarEdgeHttpClient>();
+    // Configure Quartz jobs
+    services.AddQuartz(config =>
+    {
+      // Create a keys for the jobs
+      var solarEdgeGetOverviewJobKey = new JobKey(nameof(SolarEdgeGetOverviewJob));
+      var solarEdgeGetEnergyDetailsJobKey = new JobKey(nameof(SolarEdgeGetEnergyDetailsJob));
 
-			// Configure Quartz jobs
-			services.AddQuartz(config =>
-			{
-				config.UseMicrosoftDependencyInjectionJobFactory();
+      // Register the job with the DI container
+      config.AddJob<SolarEdgeGetOverviewJob>(opts => opts.WithIdentity(solarEdgeGetOverviewJobKey));
+      config.AddJob<SolarEdgeGetEnergyDetailsJob>(opts => opts.WithIdentity(solarEdgeGetEnergyDetailsJobKey));
 
-				// Create a keys for the jobs
-				var solarEdgeGetOverviewJobKey = new JobKey(nameof(SolarEdgeGetOverviewJob));
-				var solarEdgeGetEnergyDetailsJobKey = new JobKey(nameof(SolarEdgeGetEnergyDetailsJob));
+      // Create a trigger for SolarEdgeGetOverviewJob
+      var overviewJobCronSchedule = Environment.GetEnvironmentVariable("ServiceConfig__OverviewJobCronSchedule");
+      if (string.IsNullOrEmpty(overviewJobCronSchedule))
+      {
+        overviewJobCronSchedule = Configuration.GetSection("ServiceConfig").Get<ServiceConfig>().OverviewJobCronSchedule;
+      }
+      config.AddTrigger(configure => configure
+        .ForJob(solarEdgeGetOverviewJobKey)
+        .WithIdentity($"{nameof(SolarEdgeGetOverviewJob)}-Trigger")
+        .WithCronSchedule(overviewJobCronSchedule, x => x.InTimeZone(TimeZoneInfo.Local))); // https://www.freeformatter.com/cron-expression-generator-quartz.html
 
-				// Register the job with the DI container
-				config.AddJob<SolarEdgeGetOverviewJob>(opts => opts.WithIdentity(solarEdgeGetOverviewJobKey));
-				config.AddJob<SolarEdgeGetEnergyDetailsJob>(opts => opts.WithIdentity(solarEdgeGetEnergyDetailsJobKey));
+      // Create a trigger for SolarEdgeGetEnergyDetailsJob
+      var energyDetailsJobCronSchedule = Environment.GetEnvironmentVariable("ServiceConfig__EnergyDetailsJobCronSchedule");
+      if (string.IsNullOrEmpty(energyDetailsJobCronSchedule))
+      {
+        energyDetailsJobCronSchedule = Configuration.GetSection("ServiceConfig").Get<ServiceConfig>().EnergyDetailsJobCronSchedule;
+      }
+      config.AddTrigger(configure => configure
+        .ForJob(solarEdgeGetEnergyDetailsJobKey)
+        .WithIdentity($"{nameof(SolarEdgeGetEnergyDetailsJob)}-Trigger")
+        .WithCronSchedule(energyDetailsJobCronSchedule, x => x.InTimeZone(TimeZoneInfo.Local)));
+    });
 
-				// Create a trigger for SolarEdgeGetOverviewJob
-				var overviewJobCronSchedule = Environment.GetEnvironmentVariable("ServiceConfig__OverviewJobCronSchedule");
-				if (string.IsNullOrEmpty(overviewJobCronSchedule))
-				{
-					overviewJobCronSchedule = Configuration.GetSection("ServiceConfig").Get<ServiceConfig>().OverviewJobCronSchedule;
-				}
-				config.AddTrigger(configure => configure
-					.ForJob(solarEdgeGetOverviewJobKey)
-					.WithIdentity($"{nameof(SolarEdgeGetOverviewJob)}-Trigger")
-					.WithCronSchedule(overviewJobCronSchedule, x => x.InTimeZone(TimeZoneInfo.Local))); // https://www.freeformatter.com/cron-expression-generator-quartz.html
+    services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
-				// Create a trigger for SolarEdgeGetEnergyDetailsJob
-				var energyDetailsJobCronSchedule = Environment.GetEnvironmentVariable("ServiceConfig__EnergyDetailsJobCronSchedule");
-				if (string.IsNullOrEmpty(energyDetailsJobCronSchedule))
-				{
-					energyDetailsJobCronSchedule = Configuration.GetSection("ServiceConfig").Get<ServiceConfig>().EnergyDetailsJobCronSchedule;
-				}
-				config.AddTrigger(configure => configure
-					.ForJob(solarEdgeGetEnergyDetailsJobKey)
-					.WithIdentity($"{nameof(SolarEdgeGetEnergyDetailsJob)}-Trigger")
-					.WithCronSchedule(energyDetailsJobCronSchedule, x => x.InTimeZone(TimeZoneInfo.Local)));
-			});
-			
-			services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+    services.AddCorsPolicy("EnableCORS");
+    services.AddAndConfigureApiVersioning();
+    services.AddDbContext<DataContext>();
+    services.AddHttpContextAccessor();
 
-			services.AddCorsPolicy("EnableCORS");
-			services.AddAndConfigureApiVersioning();
-			services.AddDbContext<DataContext>();
-			services.AddHttpContextAccessor();
-			
-			services.AddControllers()
-				.ConfigureApiBehaviorOptions(options =>
-				{
-					options.SuppressConsumesConstraintForFormFileParameters = true;
-					options.SuppressInferBindingSourcesForParameters = true;
-					options.SuppressModelStateInvalidFilter = true;
-					options.SuppressMapClientErrors = true;
-					options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
-				})
-				.AddNewtonsoftJson(options =>
-				{
-					options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-				});
+    services.AddControllers()
+      .ConfigureApiBehaviorOptions(options =>
+      {
+        options.SuppressConsumesConstraintForFormFileParameters = true;
+        options.SuppressInferBindingSourcesForParameters = true;
+        options.SuppressModelStateInvalidFilter = true;
+        options.SuppressMapClientErrors = true;
+        options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
+      })
+      .AddNewtonsoftJson(options =>
+      {
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+      });
 
-			services.AddRouting(options => options.LowercaseUrls = true);
-			services.AddSwaggerMiddleware();
-		}
+    services.AddRouting(options => options.LowercaseUrls = true);
+    services.AddSwaggerMiddleware();
+  }
 
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration config, IDataInitializer dataInitializer)
-		{
-			app.UseApiExceptionHandling();
-			app.UseSwaggerMiddleware(config);
+  public static async Task Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration config, IDataInitializer dataInitializer)
+  {
+    app.UseApiExceptionHandling();
+    app.UseSwaggerMiddleware(config);
 
-			if (env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
-			else
-			{
-				app.UseHsts();
-			}
+    if (env.IsDevelopment())
+    {
+      app.UseDeveloperExceptionPage();
+    }
+    else
+    {
+      app.UseHsts();
+    }
 
-			app.UseHsts();
-			app.UseRouting();
-			app.UseCors("EnableCORS");
-			app.UseStaticFiles();
+    app.UseHsts();
+    app.UseRouting();
+    app.UseCors("EnableCORS");
+    app.UseStaticFiles();
 
-			app.UseEndpoints(configure =>
-			{
-				configure.MapControllers();
-				configure.MapDefaultControllerRoute();
-				configure.MapHealthChecks("health");
-				// Redirect root to Swagger UI
-				configure.MapGet("", context =>
-				{
-					context.Response.Redirect("./swagger/index.html", permanent: false);
-					return Task.FromResult(0);
-				});
-			});
+    app.UseEndpoints(configure =>
+    {
+      configure.MapControllers();
+      configure.MapDefaultControllerRoute();
+      configure.MapHealthChecks("health");
+      // Redirect root to Swagger UI
+      configure.MapGet("", context =>
+      {
+        context.Response.Redirect("./swagger/index.html", permanent: false);
+        return Task.CompletedTask;
+      });
+    });
 
-			dataInitializer.InitializeAsync().Wait();
-		}
+    await dataInitializer.InitializeAsync();
+  }
 
-		/// <summary>
-		/// Register a configuration instances which TOptions will bind against
-		/// </summary>
-		/// <param name="services"></param>
-		protected void RegisterConfigurations(IServiceCollection services)
-		{
-			services.Configure<ServiceConfig>(Configuration.GetSection(nameof(ServiceConfig)));
-			services.Configure<SwaggerConfig>(Configuration.GetSection(nameof(SwaggerConfig)));
-		}
-	}
+  /// <summary>
+  /// Register a configuration instances which TOptions will bind against
+  /// </summary>
+  /// <param name="services"></param>
+  protected void RegisterConfigurations(IServiceCollection services)
+  {
+    services.Configure<ServiceConfig>(Configuration.GetSection(nameof(ServiceConfig)));
+    services.Configure<SwaggerConfig>(Configuration.GetSection(nameof(SwaggerConfig)));
+  }
 }

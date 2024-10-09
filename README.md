@@ -132,13 +132,12 @@ Enjoy!
 
 ## Prerequisites
 - [Visual Studio](https://www.visualstudio.com/vs/community) 2022 17.2.6 or greater
-- [.NET SDK 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
+- [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker](https://www.docker.com/resources/what-container)
 
 ## Tags & Technologies
-- [.NET 6](https://github.com/dotnet/core/blob/main/release-notes/6.0)
+- [.NET 8](https://github.com/dotnet/core/blob/main/release-notes/8.0)
 - [Docker](https://www.docker.com/resources/what-container)  
-- [ASP.NET Core 6.0](https://docs.microsoft.com/en-us/aspnet/core/release-notes/aspnetcore-6.0?view=aspnetcore-6.0)
 - [SolarEdge Monitoring Server API](https://www.solaredge.com/sites/default/files//se_monitoring_api.pdf)
 - [MySQL](https://www.mysql.com/)
 - [Grafana](https://grafana.com/)

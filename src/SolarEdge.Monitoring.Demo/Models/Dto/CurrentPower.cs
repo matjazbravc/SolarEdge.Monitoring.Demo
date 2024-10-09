@@ -1,7 +1,6 @@
-﻿namespace SolarEdge.Monitoring.Demo.Models.Dto
+﻿namespace SolarEdge.Monitoring.Demo.Models.Dto;
+
+public class CurrentPower
 {
-	public class CurrentPower
-	{
-		public double Power { get; set; }
-	}
+  public double Power { get; set; }
 }

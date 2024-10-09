@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace SolarEdge.Monitoring.Demo.Database
+namespace SolarEdge.Monitoring.Demo.Database;
+
+public interface IDataInitializer
 {
-	public interface IDataInitializer
-	{
-		Task InitializeAsync();
-	}
+  Task InitializeAsync();
 }

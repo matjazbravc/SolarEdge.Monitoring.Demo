@@ -3,30 +3,24 @@ using Microsoft.Extensions.Options;
 using SolarEdge.Monitoring.Demo.Models;
 using SolarEdge.Monitoring.Demo.Services.Configuration;
 
-namespace SolarEdge.Monitoring.Demo.Database
+namespace SolarEdge.Monitoring.Demo.Database;
+
+/// <summary>
+/// Database context
+/// </summary>
+public class DataContext(IOptions<ServiceConfig> config) : DbContext
 {
-	/// <summary>
-	/// Database context
-	/// </summary>
-	public class DataContext : DbContext
-	{
-		private readonly ServiceConfig _config;
+  private readonly ServiceConfig _config = config.Value;
 
-		public DataContext(IOptions<ServiceConfig> config)
-		{
-			_config = config.Value;
-		}
-		
-		public DbSet<EnergyDetails> EnergyDetails { get; set; }
-		
-		public DbSet<Overview> Overview { get; set; }
+  public DbSet<EnergyDetails> EnergyDetails { get; set; }
 
-		protected override void OnConfiguring(DbContextOptionsBuilder options)
-		{
-			var connectionString = _config.MySqlConnectionString;
-			options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-				.EnableSensitiveDataLogging()
-				.EnableDetailedErrors();
-		}
-	}
+  public DbSet<Overview> Overview { get; set; }
+
+  protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+  {
+    var connectionString = _config.MySqlConnectionString;
+    optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+      .EnableSensitiveDataLogging()
+      .EnableDetailedErrors();
+  }
 }

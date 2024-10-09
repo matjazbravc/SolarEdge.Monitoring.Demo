@@ -1,7 +1,6 @@
-﻿namespace SolarEdge.Monitoring.Demo.Models.Dto
+﻿namespace SolarEdge.Monitoring.Demo.Models.Dto;
+
+public class Data
 {
-	public class Data
-	{
-		public double Energy { get; set; }
-	}
+  public double Energy { get; set; }
 }
