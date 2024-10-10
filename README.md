@@ -112,7 +112,7 @@ services:
       - 3306:3306
 ```
 # Setup the Containers
-To execute compose file, open Powershell, and navigate to the compose file in the root folder. Then execute the following command: **docker-compose up -d --build**. To check all running Containers use **docker ps**.
+To execute compose file, open Powershell, and navigate to the compose file in the root folder. Then execute the following command: **docker-compose up -d --build --remove-orphans**. To check all running Containers use **docker ps**.
 
 ![](res/docker.png)
 
