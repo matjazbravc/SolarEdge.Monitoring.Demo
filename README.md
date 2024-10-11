@@ -15,8 +15,6 @@ An API key can be generated to enable access to specific sites (via Site API key
 ## Docker-Compose Files
 **Docker-compose.yml** file with setup for all the containers looks like this:
 ```yml
-version: '3.9'
-
 services:
   grafana:
     image: grafana/grafana-enterprise
@@ -73,8 +71,6 @@ networks:
 ```
 All you have to do is set your SolarEdge **Site Id** (MY_SITE_ID) and **API key** (MY_API_KEY) in the **docker-compose.override.yml** file.
 ```yml
-version: '3.9'
-
 services:
   solaredge.monitoring.demo:
     environment:
