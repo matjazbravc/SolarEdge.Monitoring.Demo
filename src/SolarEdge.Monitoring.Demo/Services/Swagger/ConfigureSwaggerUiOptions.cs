@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿using Asp.Versioning.ApiExplorer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Options;
 using SolarEdge.Monitoring.Demo.Services.Configuration;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
+using System.Linq;
 
 namespace SolarEdge.Monitoring.Demo.Services.Swagger;
 
@@ -30,9 +31,9 @@ public class ConfigureSwaggerUiOptions(
     options.DefaultModelExpandDepth(0);
 
     // Configure Swagger JSON endpoints
-    foreach (var description in _apiProvider.ApiVersionDescriptions)
+    foreach (var groupName in _apiProvider.ApiVersionDescriptions.Select(description => description.GroupName))
     {
-      options.SwaggerEndpoint($"/{_swaggerConfig.RoutePrefix}/{description.GroupName}/{_swaggerConfig.DocsFile}", description.GroupName);
+      options.SwaggerEndpoint($"/{_swaggerConfig.RoutePrefix}/{groupName}/{_swaggerConfig.DocsFile}", groupName);
     }
   }
 }
