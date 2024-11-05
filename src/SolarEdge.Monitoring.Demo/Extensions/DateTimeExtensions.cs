@@ -16,7 +16,7 @@ public static class DateTimeExtensions
 
   public static DateTime StartOfThisMonth(this DateTime self)
   {
-    return new DateTime(self.Year, self.Month, 1);
+    return new DateTime(self.Year, self.Month, 1, 0, 0, 0, DateTimeKind.Utc);
   }
 
   public static DateTime StartOfThisWeek(this DateTime self)
@@ -27,19 +27,19 @@ public static class DateTimeExtensions
 
   public static DateTime StartOfDay(this DateTime self)
   {
-    var returnDateTime = new DateTime(self.Year, self.Month, self.Day, 0, 0, 0);
+    var returnDateTime = new DateTime(self.Year, self.Month, self.Day, 0, 0, 0, DateTimeKind.Utc);
     return returnDateTime;
   }
 
   public static DateTime EndOfDay(this DateTime self)
   {
-    var returnDateTime = new DateTime(self.Year, self.Month, self.Day, 23, 59, 59);
+    var returnDateTime = new DateTime(self.Year, self.Month, self.Day, 23, 59, 59, DateTimeKind.Utc);
     return returnDateTime;
   }
 
   public static DateTime StartOfThisYear(this DateTime self)
   {
-    return new DateTime(self.Year, 1, 1);
+    return new DateTime(self.Year, 1, 1,0, 0, 0, DateTimeKind.Utc);
   }
 
   public static string ToSqlDateTime(this DateTime self)

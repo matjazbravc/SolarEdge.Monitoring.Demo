@@ -23,7 +23,7 @@ public static class AppExtensions
   /// <param name="config"></param>
   public static void UseSwaggerMiddleware(this IApplicationBuilder app, IConfiguration config)
   {
-    var swaggerConfig = config.GetSection(nameof(SwaggerConfig)).Get<SwaggerConfig>();
+    SwaggerConfig swaggerConfig = config.GetSection(nameof(SwaggerConfig)).Get<SwaggerConfig>();
     app.UseSwagger(options =>
     {
       options.RouteTemplate = $"{swaggerConfig.RoutePrefix}/{{documentName}}/{swaggerConfig.DocsFile}";
