@@ -119,7 +119,7 @@ public class Startup(IConfiguration configuration)
     services.AddSwaggerMiddleware();
   }
 
-  public static async Task Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration config, IDataInitializer dataInitializer)
+  public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration config, IDataInitializer dataInitializer)
   {
     app.UseApiExceptionHandling();
     app.UseSwaggerMiddleware(config);
@@ -151,7 +151,7 @@ public class Startup(IConfiguration configuration)
       });
     });
 
-    await dataInitializer.InitializeAsync();
+    dataInitializer.InitializeAsync();
   }
 
   /// <summary>
